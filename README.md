@@ -37,7 +37,8 @@ Fernando Javier Tomás Velásquez - 261329
 
 
 Las clases principales que utilizaremos serán:
-*Clase Vehículo*: Clase padre abstracta que contiene los métodos y atributos comunes entre los vehículos que maneja la empresa.
+## Clase Vehículo
+ Clase padre abstracta que contiene los métodos y atributos comunes entre los vehículos que maneja la empresa.
 ### Atributos:
 - placa: String, privado. Identifica al vehículo.
 - marca: String, privado. Guarda la marca del vehículo.
@@ -57,7 +58,8 @@ Las clases principales que utilizaremos serán:
 - obtenerCategoria(): String, público y abstracto. Devuelve el nombre de la categoría.
 - obtenerDetalles(): String, público. Devuelve los datos comunes del vehículo. Las subclases amplían este resultado con sus características.
 
-*Clase Sedán*: Hereda de Vehículo y agrega la cantidad de pasajeros y el tipo de transmisión.
+## Clase Sedán
+ Hereda de Vehículo y agrega la cantidad de pasajeros y el tipo de transmisión.
 ### Atributos:
 - cantidadPasajeros: int, privado. Indica cuántas personas puede transportar. Debe ser mayor que cero.
 - transmisionAutomatica: boolean, privado. Su valor es TRUE para transmisión automática y FALSE para manual.
@@ -67,25 +69,28 @@ Las clases principales que utilizaremos serán:
 - obtenerCategoria(): String, público. Devuelve "Sedán".
 - obtenerDetalles(): String, público. Agrega la cantidad de pasajeros y el tipo de transmisión a los datos comunes.
 
-*Clase Motocicleta*: Hereda de Vehículo y tiene el cilindraje como característica distintiva.
+## Clase Motocicleta 
+Hereda de Vehículo y tiene el cilindraje como característica distintiva.
 ### Atributos:
 - cilindraje: int, privado. Almacena el cilindraje en centímetros cúbicos. Debe ser mayor que cero.
-- Métodos:
+### Métodos:
 - Motocicleta(String placa, String marca, String modelo, double tarifaDiaria, int cilindraje), público: Constructor que inicializa los datos heredados y el cilindraje.
 - calcularCosto(int dias): double, público. Devuelve tarifaDiaria × dias y suma Q75 si el cilindraje es mayor de 250 cc. El recargo se aplica una sola vez por alquiler.
 - obtenerCategoria(): String, público. Devuelve "Motocicleta".
-- obtenerDetalles(): String, público. Agrega el cilindraje a los datos comunes.}
+- obtenerDetalles(): String, público. Agrega el cilindraje a los datos comunes.
 
-*Clase TransporteCarga*: Hereda de Vehículo y agrega la capacidad máxima de carga.
+## Clase TransporteCarga
+Hereda de Vehículo y agrega la capacidad máxima de carga.
 ### Atributos:
 - capacidadCargaMaxima: double, privado. Representa la capacidad máxima en toneladas. Permite decimales y debe ser mayor que cero.
-Métodos:
+### Métodos:
 -TransporteCarga(String placa, String marca, String modelo, double tarifaDiaria, double capacidadCargaMaxima), público: Constructor que inicializa los datos heredados y la capacidad de carga.
 -calcularCosto(int dias): double, público. Devuelve (tarifaDiaria + 100 × capacidadCargaMaxima) × dias.
 -obtenerCategoria(): String, público. Devuelve "Transporte de carga".
 -obtenerDetalles(): String, público. Agrega la capacidad máxima en toneladas a los datos comunes.
 
-*Clase Alquiler*: Conserva los datos de cada alquiler confirmado para consultar el historial y calcular los ingresos.
+## Clase Alquiler 
+Conserva los datos de cada alquiler confirmado para consultar el historial y calcular los ingresos.
 ### Atributos:
 - vehiculo: Vehiculo, privado. Referencia al vehículo que se alquiló.
 - dias: int, privado. Guarda la cantidad de días contratados.
@@ -97,7 +102,8 @@ Métodos:
 - getMontoTotal(): double, público. Devuelve el importe cobrado.
 Esta clase conserva el registro histórico. La disponibilidad actual se mantiene en Vehículo para evitar almacenar el mismo estado en dos lugares.
 
-*Clase RegistroAlquiler*: Administra la flota, coordina los alquileres y devoluciones, conserva el historial y obtiene los reportes.
+## Clase RegistroAlquiler
+Administra la flota, coordina los alquileres y devoluciones, conserva el historial y obtiene los reportes.
 ### Atributos:
 - vehiculos: ArrayList<Vehiculo>, privado. Almacena los vehículos registrados.
 - alquileres: ArrayList<Alquiler>, privado. Conserva los alquileres confirmados.
@@ -109,12 +115,13 @@ Esta clase conserva el registro histórico. La disponibilidad actual se mantiene
 - cotizar(String placa, int dias): double, público. Busca el vehículo y solicita su cálculo de costo. No exige disponibilidad ni modifica los registros.
 - confirmarAlquiler(String placa, int dias): Alquiler, público. Verifica la disponibilidad y los días, calcula el costo, registra el alquiler y marca el vehículo como ocupado. Devuelve el alquiler creado.
 - registrarDevolucion(String placa): void, público. Verifica que el vehículo exista y esté alquilado; luego lo marca como disponible. No modifica el historial ni los ingresos.
-- consultarVehiculos(): ArrayList<Vehiculo>, público. Devuelve una copia de la lista para consultar la flota sin permitir cambios directos en la colección interna.
-- consultarHistorial(): ArrayList<Alquiler>, público. Devuelve una copia de los alquileres confirmados.
+- consultarVehiculos(): ArrayList  $<Vehiculo>$, público. Devuelve una copia de la lista para consultar la flota sin permitir cambios directos en la colección interna.
+- consultarHistorial(): ArrayList $<Alquiler>$, público. Devuelve una copia de los alquileres confirmados.
 - calcularGananciaTotal(): double, público. Suma los montos de los alquileres confirmados. El resultado representa los ingresos acumulados.
 - generarReporte(): String, público. Devuelve las cantidades de vehículos registrados, disponibles y alquilados, tanto generales como por categoría, junto con los ingresos acumulados.
 
-*Clase Principal*: Contiene el método main y se encarga de la interacción con el usuario mediante la consola.
+## Clase Principal
+Contiene el método main y se encarga de la interacción con el usuario mediante la consola.
 ### Atributos:
 - registro: RegistroAlquiler, privado. Referencia al objeto que administra las operaciones.
 - entrada: Scanner, privado. Permite leer los datos ingresados en la consola.
