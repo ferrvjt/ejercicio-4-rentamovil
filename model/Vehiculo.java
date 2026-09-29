@@ -1,6 +1,6 @@
 package model;
 
-public class Vehiculo {
+public abstract class Vehiculo {
     private String placa;
     private String marca;
     private String modelo;
@@ -8,9 +8,21 @@ public class Vehiculo {
     private boolean disponibilidad;
 
     public Vehiculo(String placa, String marca, String modelo, double tarifaDiaria) {
-        this.placa = placa;
-        this.marca = marca;
-        this.modelo = modelo;
+        if (placa == null || placa.trim().isEmpty()) {
+            throw new IllegalArgumentException("La placa no puede estar vacía.");
+        }
+        if (marca == null || marca.trim().isEmpty()) {
+            throw new IllegalArgumentException("La marca no puede estar vacía.");
+        }
+        if (modelo == null || modelo.trim().isEmpty()) {
+            throw new IllegalArgumentException("El modelo no puede estar vacío.");
+        }
+        if (tarifaDiaria <= 0) {
+            throw new IllegalArgumentException("La tarifa diaria debe ser mayor a cero.");
+        }
+        this.placa = placa.trim().toUpperCase();
+        this.marca = marca.trim();
+        this.modelo = modelo.trim();
         this.tarifaDiaria = tarifaDiaria;
         this.disponibilidad = true;
     }
@@ -19,9 +31,7 @@ public class Vehiculo {
         return disponibilidad;
     }
 
-    public double calcularCosto(int dias) {
-        return dias * tarifaDiaria;
-    }
+    public abstract double calcularCosto(int dias);
 
     public void marcarAlquilado() {
         if (!disponibilidad) {
@@ -30,7 +40,7 @@ public class Vehiculo {
         }
         disponibilidad = false;
     }
- 
+
     public void marcarDisponible() {
         if (disponibilidad) {
             throw new IllegalStateException(
@@ -38,40 +48,38 @@ public class Vehiculo {
         }
         disponibilidad = true;
     }
- 
+
     public String getPlaca() {
         return placa;
     }
- 
+
     public String getMarca() {
         return marca;
     }
- 
+
     public String getModelo() {
         return modelo;
     }
- 
+
     public double getTarifaDiaria() {
         return tarifaDiaria;
     }
- 
-    public String obtenerCategoria() {
-        return "General";
-    }
- 
+
+    public abstract String obtenerCategoria();
+
     /**
      * Devuelve los datos comunes del vehículo. Las subclases amplían
      * este resultado agregando sus propias características.
      */
     public String obtenerDetalles() {
         return String.format(
-                "Placa: %s | Marca: %s | Modelo: %s | Tarifa diaria: Q%.2f | Disponible: %s",
-                placa, marca, modelo, tarifaDiaria, disponibilidad ? "Sí" : "No");
+                "Placa: %s | Categoría: %s | Marca: %s | Modelo: %s | Tarifa diaria: Q%.2f | Disponible: %s",
+                placa, obtenerCategoria(), marca, modelo, tarifaDiaria, disponibilidad ? "Sí" : "No");
     }
- 
+
     protected void validarDias(int dias) {
         if (dias <= 0) {
-            throw new IllegalArgumentException("Los días deben ser un número entero positivo.");
+            throw new IllegalArgumentException("Los días de alquiler deben ser un número entero positivo.");
         }
     }
 }

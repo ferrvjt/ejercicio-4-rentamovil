@@ -6,8 +6,14 @@ public class Alquiler {
     private double montoTotal;
 
     public Alquiler(Vehiculo vehiculo, int dias, double montoTotal) {
+        if (vehiculo == null) {
+            throw new IllegalArgumentException("El vehículo no puede ser nulo.");
+        }
         if (dias <= 0) {
             throw new IllegalArgumentException("La cantidad de días debe ser mayor a cero.");
+        }
+        if (montoTotal <= 0) {
+            throw new IllegalArgumentException("El monto total debe ser mayor a cero.");
         }
         this.vehiculo = vehiculo;
         this.dias = dias;
@@ -20,10 +26,6 @@ public class Alquiler {
 
     public int getDias() {
         return dias;
-    }
-
-    public double calcularCostoTotal() {
-        return vehiculo.calcularCosto(dias);
     }
 
     public double getMontoTotal() {

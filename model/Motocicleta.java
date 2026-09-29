@@ -6,12 +6,12 @@ public class Motocicleta extends Vehiculo {
     public Motocicleta(String placa, String marca, String modelo, double tarifaDiaria, int cilindraje) {
         super(placa, marca, modelo, tarifaDiaria);
         if (cilindraje <= 0) {
-            throw new IllegalArgumentException("La cilindraje debe ser mayor a cero.");
+            throw new IllegalArgumentException("El cilindraje debe ser mayor a cero.");
         }
         this.cilindraje = cilindraje;
     }
 
-    public int getCilindrada() {
+    public int getCilindraje() {
         return cilindraje;
     }
 
@@ -19,7 +19,7 @@ public class Motocicleta extends Vehiculo {
     public double calcularCosto(int dias) {
         validarDias(dias);
         double tarifa = getTarifaDiaria() * dias;
-        if (cilindraje > 250){
+        if (cilindraje > 250) {
             tarifa += 75;
         }
         return tarifa;
@@ -33,5 +33,5 @@ public class Motocicleta extends Vehiculo {
     @Override
     public String obtenerDetalles() {
         return super.obtenerDetalles() + String.format(" | Cilindraje: %d cc", cilindraje);
-    }    
+    }
 }

@@ -1,6 +1,8 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class RegistroAlquiler {
     private ArrayList<Vehiculo> vehiculos;
@@ -12,70 +14,82 @@ public class RegistroAlquiler {
     }
 
     public boolean validarPlacaUnica(String placa) {
+        if (placa == null || placa.trim().isEmpty()) {
+            return false;
+        }
         for (Vehiculo vehiculo : vehiculos) {
-            if (vehiculo.getPlaca().equalsIgnoreCase(placa)) {
-                return false; // La placa ya existe
+            if (vehiculo.getPlaca().equalsIgnoreCase(placa.trim())) {
+                return false;
             }
         }
-        return true; // La placa es única
-
+        return true;
     }
 
     public void agregarVehiculo(Vehiculo vehiculo) {
-        if (validarPlacaUnica(vehiculo.getPlaca())) {
-            vehiculos.add(vehiculo);
-        } else {
-            throw new IllegalArgumentException("La placa del vehículo ya existe en el registro.");
+        if (vehiculo == null) {
+            throw new IllegalArgumentException("El vehículo no puede ser nulo.");
         }
+        if (!validarPlacaUnica(vehiculo.getPlaca())) {
+            throw new IllegalArgumentException("Ya existe un vehículo registrado con la placa " + vehiculo.getPlaca() + ".");
+        }
+        vehiculos.add(vehiculo);
     }
 
     public Vehiculo buscarVehiculo(String placa) {
+        if (placa == null) {
+            return null;
+        }
         for (Vehiculo vehiculo : vehiculos) {
-            if (vehiculo.getPlaca().equalsIgnoreCase(placa)) {
+            if (vehiculo.getPlaca().equalsIgnoreCase(placa.trim())) {
                 return vehiculo;
             }
         }
-        return null; // No se encontró el vehículo
+        return null;
     }
 
     public double cotizar(String placa, int dias) {
         Vehiculo vehiculo = buscarVehiculo(placa);
-        if (vehiculo != null) {
-            return vehiculo.calcularCosto(dias);
-        } else {
-            throw new IllegalArgumentException("No se encontró un vehículo con la placa proporcionada.");
+        if (vehiculo == null) {
+            throw new IllegalArgumentException("No existe un vehículo registrado con la placa '" + placa + "'.");
         }
+        return vehiculo.calcularCosto(dias);
     }
 
     public Alquiler confirmarAlquiler(String placa, int dias) {
         Vehiculo vehiculo = buscarVehiculo(placa);
-        if (vehiculo != null) {
-            double montoTotal = vehiculo.calcularCosto(dias);
-            Alquiler alquiler = new Alquiler(vehiculo, dias, montoTotal);
-            alquileres.add(alquiler);
-            return alquiler;
-        } else {
-            throw new IllegalArgumentException("No se encontró un vehículo con la placa proporcionada.");
+        if (vehiculo == null) {
+            throw new IllegalArgumentException("No existe un vehículo registrado con la placa '" + placa + "'.");
         }
+        if (!vehiculo.validarDisponibilidad()) {
+            throw new IllegalStateException("El vehículo con placa '" + vehiculo.getPlaca() + "' no está disponible (ya se encuentra alquilado).");
+        }
+        
+        double montoTotal = vehiculo.calcularCosto(dias);
+        vehiculo.marcarAlquilado();
+        Alquiler alquiler = new Alquiler(vehiculo, dias, montoTotal);
+        alquileres.add(alquiler);
+        return alquiler;
     }
 
     public void registrarDevolucion(String placa) {
-        //Devolver el carro despues de uso sin eliminarlo del registro de vehiculos
-        for (Alquiler alquiler : alquileres) {
-            if (alquiler.getVehiculo().getPlaca().equalsIgnoreCase(placa)) {
-                alquileres.remove(alquiler);
-                return; // Salir del método después de eliminar el alquiler
-            }
+        Vehiculo vehiculo = buscarVehiculo(placa);
+        if (vehiculo == null) {
+            throw new IllegalArgumentException("No existe un vehículo registrado con la placa '" + placa + "'.");
         }
-        throw new IllegalArgumentException("No se encontró un alquiler con la placa proporcionada.");
-    }   
-
-    public ArrayList<Vehiculo> consultarVehiculos() {
-        return vehiculos;
+        if (vehiculo.validarDisponibilidad()) {
+            throw new IllegalStateException("El vehículo con placa '" + vehiculo.getPlaca() + "' ya se encuentra disponible (no está alquilado).");
+        }
+        
+        // Se marca el vehículo como disponible nuevamente sin alterar el historial ni los ingresos
+        vehiculo.marcarDisponible();
     }
 
-    public ArrayList<Alquiler> consultarAlquileres() {
-        return alquileres;
+    public List<Vehiculo> consultarVehiculos() {
+        return Collections.unmodifiableList(vehiculos);
+    }
+
+    public List<Alquiler> consultarAlquileres() {
+        return Collections.unmodifiableList(alquileres);
     }
 
     public double calcularTotalIngresos() {
@@ -86,36 +100,53 @@ public class RegistroAlquiler {
         return totalIngresos;
     }
 
-    public String generarResporte(){
-        //. Devuelve las cantidades de vehículos registrados, disponibles y alquilados, tanto generales como por categoría, junto con los ingresos acumulados.
+    public String generarReporte() {
         int totalVehiculos = vehiculos.size();
-        int totalAlquilados = alquileres.size();
-        int totalDisponibles = totalVehiculos - totalAlquilados;
+        int totalDisponibles = 0;
+        int totalAlquilados = 0;
 
-        int totalMotocicletas = 0;
-        int totalSedanes = 0;
-        int totalTransportesCarga = 0;
+        int sedanesTotal = 0, sedanesDisp = 0, sedanesAlq = 0;
+        int motosTotal = 0, motosDisp = 0, motosAlq = 0;
+        int cargasTotal = 0, cargasDisp = 0, cargasAlq = 0;
 
         for (Vehiculo vehiculo : vehiculos) {
-            if (vehiculo instanceof Motocicleta) {
-                totalMotocicletas++;
-            } else if (vehiculo instanceof Sedan) {
-                totalSedanes++;
+            boolean disp = vehiculo.validarDisponibilidad();
+            if (disp) {
+                totalDisponibles++;
+            } else {
+                totalAlquilados++;
+            }
+
+            if (vehiculo instanceof Sedan) {
+                sedanesTotal++;
+                if (disp) sedanesDisp++; else sedanesAlq++;
+            } else if (vehiculo instanceof Motocicleta) {
+                motosTotal++;
+                if (disp) motosDisp++; else motosAlq++;
             } else if (vehiculo instanceof TransporteCarga) {
-                totalTransportesCarga++;
+                cargasTotal++;
+                if (disp) cargasDisp++; else cargasAlq++;
             }
         }
 
         StringBuilder reporte = new StringBuilder();
-
-        reporte.append("----- Reporte de Alquileres -----\n");
-        reporte.append("Total de Vehículos Registrados: ").append(totalVehiculos).append("\n");
-        reporte.append("Total de Vehículos Disponibles: ").append(totalDisponibles).append("\n");
-        reporte.append("Total de Vehículos Alquilados: ").append(totalAlquilados).append("\n");
-        reporte.append("Total de Motocicletas: ").append(totalMotocicletas).append("\n");
-        reporte.append("Total de Sedanes: ").append(totalSedanes).append("\n");
-        reporte.append("Total de Transportes de Carga: ").append(totalTransportesCarga).append("\n");
-        reporte.append("Ingresos Acumulados: $").append(calcularTotalIngresos()).append("\n");
+        reporte.append("====================================================\n");
+        reporte.append("              REPORTE GENERAL DE FLOTA              \n");
+        reporte.append("====================================================\n");
+        reporte.append(String.format("Total de Vehículos Registrados: %d\n", totalVehiculos));
+        reporte.append(String.format("Total de Vehículos Disponibles: %d\n", totalDisponibles));
+        reporte.append(String.format("Total de Vehículos Alquilados  : %d\n", totalAlquilados));
+        reporte.append("----------------------------------------------------\n");
+        reporte.append("DESGLOSE POR CATEGORÍA:\n");
+        reporte.append(String.format(" - Sedanes           : Total = %d | Disponibles = %d | Alquilados = %d\n",
+                sedanesTotal, sedanesDisp, sedanesAlq));
+        reporte.append(String.format(" - Motocicletas      : Total = %d | Disponibles = %d | Alquilados = %d\n",
+                motosTotal, motosDisp, motosAlq));
+        reporte.append(String.format(" - Transporte Carga  : Total = %d | Disponibles = %d | Alquilados = %d\n",
+                cargasTotal, cargasDisp, cargasAlq));
+        reporte.append("----------------------------------------------------\n");
+        reporte.append(String.format("Ingresos Acumulados Confirmados: Q%.2f\n", calcularTotalIngresos()));
+        reporte.append("====================================================\n");
         return reporte.toString();
-    }    
+    }
 }

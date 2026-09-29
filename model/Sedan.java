@@ -30,17 +30,16 @@ public class Sedan extends Vehiculo {
         }
         return tarifa * dias;
     }
- 
+
     @Override
     public String obtenerCategoria() {
         return "Sedán";
     }
- 
+
     @Override
     public String obtenerDetalles() {
         return super.obtenerDetalles() + String.format(
                 " | Pasajeros: %d | Transmisión: %s",
                 cantidadPasajeros, transmisionAutomatica ? "Automática" : "Manual");
     }
-    
 }

@@ -18,8 +18,7 @@ public class TransporteCarga extends Vehiculo {
     @Override
     public double calcularCosto(int dias) {
         validarDias(dias);
-        double tarifa = (getTarifaDiaria() + (100*capacidadCarga)) * dias;
-        return tarifa;
+        return (getTarifaDiaria() + (100 * capacidadCarga)) * dias;
     }
 
     @Override
@@ -29,7 +28,6 @@ public class TransporteCarga extends Vehiculo {
 
     @Override
     public String obtenerDetalles() {
-        return super.obtenerDetalles() + String.format(" | Capacidad de Carga: %.2f kg", capacidadCarga);
+        return super.obtenerDetalles() + String.format(" | Capacidad de Carga: %.2f toneladas", capacidadCarga);
     }
-    
 }
